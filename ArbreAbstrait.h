@@ -33,7 +33,7 @@ public:
     ~NoeudSeqInst() {} // A cause du destructeur virtuel de la classe Noeud
     int executer();    // Exécute chaque instruction de la séquence
     void ajoute(Noeud* instruction); // Ajoute une instruction à la séquence
-
+    void traduireEnCPP(ostream cout, unsigned int indentation) const;
 private:
     vector<Noeud *> m_instructions; // pour stocker les instructions de la séquence
 };
@@ -83,7 +83,7 @@ public:
     ~NoeudInstSi() {
     } // A cause du destructeur virtuel de la classe Noeud
     int executer(); // Exécute l'instruction si : si condition vraie on exécute la séquence
-
+    void traduitEnCPP(ostream cout,unsigned int indentation)const;
 private:
     Noeud* m_condition;
     Noeud* m_sequence;
@@ -117,7 +117,7 @@ public:
     ~NoeudInstTantQue() {
     } // A cause du destructeur virtuel de la classe Noeud
     int executer(); // Exécute l'instruction si : si condition vraie on exécute la séquence
-
+    void traduitEnCPP(ostream cout,unsigned int indentation)const;
 private:
     Noeud* m_condition;
     Noeud* m_sequence;
@@ -133,7 +133,7 @@ public:
     ~NoeudInstRepeter() {
     }
     int executer();
-
+    void traduitEnCPP(ostream cout,unsigned int indentation)const;
 private:
     Noeud* m_instruction;
     Noeud* m_expression;
@@ -149,7 +149,7 @@ public:
     ~NoeudInstPour() {
     }
     int executer();
-
+    void traduitEnCPP(ostream cout,unsigned int indentation)const;
 private:
     Noeud* m_initialisation;
     Noeud* m_condition;
@@ -170,6 +170,7 @@ public:
     void ajoute(Noeud* parametre) override{
         m_chainesEtExpressions.push_back(parametre);
     }
+    void traduitEnCPP(ostream cout,unsigned int indentation)const;
 private:
     vector<Noeud *> m_chainesEtExpressions;
 };
@@ -187,6 +188,7 @@ public:
     void ajoute(Noeud* parametre) override{
         m_variables.push_back(parametre);
     }
+    void traduitEnCPP(ostream cout,unsigned int indentation)const;
 private:
     vector<Noeud *> m_variables;
 };
