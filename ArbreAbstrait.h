@@ -21,6 +21,7 @@ public:
     virtual int  executer() =0 ; // Méthode pure (non implémentée) qui rend la classe abstraite
     virtual void ajoute(Noeud* instruction) { throw OperationInterditeException(); }
     virtual ~Noeud() {} // Présence d'un destructeur virtuel conseillée dans les classes abstraites
+    void traduitEnCPP(ostream cout, unsigned int indentation) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +34,6 @@ public:
     ~NoeudSeqInst() {} // A cause du destructeur virtuel de la classe Noeud
     int executer();    // Exécute chaque instruction de la séquence
     void ajoute(Noeud* instruction); // Ajoute une instruction à la séquence
-    void traduireEnCPP(ostream cout, unsigned int indentation) const;
 private:
     vector<Noeud *> m_instructions; // pour stocker les instructions de la séquence
 };
@@ -98,7 +98,7 @@ class NoeudInstSiRiche : public Noeud {
      // Construit une "instruction si" avec sa condition et sa séquence d'instruction
    ~NoeudInstSiRiche() {} // A cause du destructeur virtuel de la classe Noeud
     int executer();  // Exécute l'instruction si : si condition vraie on exécute la séquence
-    void traduitEnCPP(ostream & cout,unsigned int indentation) const;
+    void traduitEnCPP(ostream cout,unsigned int indentation) const;
   private:
     vector<Noeud*> m_vectSi;  
     Noeud*  m_sequenceSinon;
