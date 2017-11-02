@@ -292,7 +292,7 @@ Noeud* Interpreteur::instLire() {
     return lire;
 }
 
-void Interpreteur::traduitEnCPP(ostream cout, unsigned int indentation) const {
+void Interpreteur::traduitEnCPP(ostream & cout, unsigned int indentation) const {
     cout << setw(4*indentation) << "" << "int main() {" << endl; //Début d'un programme C++
     //Déclaration en C++ des variables présentes dans le programme...
     //...variables dont on retrouvera le nom en parcourant la table des symboles!

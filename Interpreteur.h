@@ -19,6 +19,7 @@ public:
 
 	inline const TableSymboles & getTable () const  { return m_table;    } // accesseur	
 	inline Noeud* getArbre () const { return m_arbre; }
+    void traduitEnCPP (ostream & cout, unsigned int indentation)const;
 
     int getNbErreurs() const {
         return m_nbErreurs;
@@ -51,7 +52,6 @@ private:
     void tester (const string & symboleAttendu) const throw (SyntaxeException);   // Si symbole courant != symboleAttendu, on lève une exception
     void testerEtAvancer(const string & symboleAttendu) throw (SyntaxeException); // Si symbole courant != symboleAttendu, on lève une exception, sinon on avance
     void erreur (const string & mess) const throw (SyntaxeException);             // Lève une exception "contenant" le message mess
-    void traduitEnCPP (ostream cout, unsigned int indentation)const;
 };
 
 #endif /* INTERPRETEUR_H */
