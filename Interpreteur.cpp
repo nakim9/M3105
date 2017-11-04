@@ -293,12 +293,28 @@ Noeud* Interpreteur::instLire() {
 }
 
 void Interpreteur::traduitEnCPP(ostream & cout, unsigned int indentation) const {
-    cout << setw(4*indentation) << "" << "int main() {" << endl; //Début d'un programme C++
+    cout << setw(4 * indentation) << "" << "int main() {" << endl; //Début d'un programme C++
     //Déclaration en C++ des variables présentes dans le programme...
     //...variables dont on retrouvera le nom en parcourant la table des symboles!
     // Par exemple, si le programme contient i,j,k il faudra écrire : int i; int j; int k;....
-    
-    getArbre()->traduitEnCPP(cout, indentation+1); //lance l'opération traduitEnCPP sur la racine
-    cout << setw(4*(indentation+1)) << "" << "return 0;" << endl;
-    cout << setw(4*indentation) << "}" << endl; // Fin d'un programme C++
+    TableSymboles tab = getTable();
+    int i = 0;
+    while (i < tab.getTaille() - 1 && tab[i].estDefini()) {
+        i++; //parcour de la table de symbole jusqu'a trouvé un symbole non défini ou la fin de la table
+    }
+    if (i <= tab.getTaille()) {//si on est pas à la fin de la table
+        cout << setw(4 * (indentation + 1)) << "" << "int ";
+        cout << tab[i].getChaine();
+        while (i < tab.getTaille() - 1) {//on parcourt le reste de la table
+            i++;
+            if (!(tab[i].estDefini())) {
+                cout << ", " << tab[i].getChaine();
+            }
+        }
+        cout << ";" << endl;
+    }
+
+    getArbre()->traduitEnCPP(cout, indentation + 1); //lance l'opération traduitEnCPP sur la racine
+    cout << setw(4 * (indentation + 1)) << "" << "return 0;" << endl;
+    cout << setw(4 * indentation) << "}" << endl; // Fin d'un programme C++
 }
