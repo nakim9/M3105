@@ -119,13 +119,26 @@ Noeud* Interpreteur::inst() {
 }
 
 Noeud* Interpreteur::affectation() {
-    // <affectation> ::= <variable> = <expression> 
+    // <affectation> ::= <variable> = <expression>
+    string type; // variable qui va permettre de distinguer une incrémentation d'une décrémentation
     tester("<VARIABLE>");
     Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
     m_lecteur.avancer();
-    testerEtAvancer("=");
-    Noeud* exp = expression(); // On mémorise l'expression trouvée
-    return new NoeudAffectation(var, exp); // On renvoie un noeud affectation
+    if (m_lecteur.getSymbole()=="=") {
+        m_lecteur.avancer();
+        Noeud* exp = expression(); // On mémorise l'expression trouvée
+        return new NoeudAffectation(var, exp); // On renvoie un noeud affectation
+    } 
+    else if (m_lecteur.getSymbole()=="++") {
+        m_lecteur.avancer();
+        type = "incr";
+        return new NoeudAffectation(var, type); // On renvoie un noeud affectation
+    }
+    else if (m_lecteur.getSymbole()=="--") {
+        m_lecteur.avancer();
+        type = "decr";
+        return new NoeudAffectation(var, type); // On renvoie un noeud affectation
+    }
 }
 
 Noeud* Interpreteur::expression() {
@@ -293,6 +306,27 @@ Noeud* Interpreteur::instLire() {
     return lire;
 }
 
+Noeud* Interpreteur::instSwitch() {
+    //   <instSwitch> ::= selon (i) cas 1 : <seqInst> cas 2 : <seqInst> ... defaut : <seqInst> finselon
+    testerEtAvancer("selon");
+    testerEtAvancer("(");
+    vector<Noeud*> vectCasCondition;
+    vector<Noeud*> vectCasInstruction;
+    Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
+    m_lecteur.avancer();
+    testerEtAvancer(")");
+    while (m_lecteur.getSymbole()=="cas") {
+        m_lecteur.avancer();
+        Noeud* condition = expression();
+        testerEtAvancer(":");
+        Noeud* inst = seqInst();
+        vectCasCondition.push_back(condition);
+        vectCasInstruction.push_back(inst);
+    }
+    testerEtAvancer("finselon");
+    return new NoeudInstSwitch(var, vectCasCondition, vectCasInstruction);
+}
+
 void Interpreteur::traduitEnCPP(ostream & cout, unsigned int indentation) const {
     cout << setw(4 * indentation) << "" << "int main() {" << endl; //Début d'un programme C++
     //Déclaration en C++ des variables présentes dans le programme...
@@ -319,3 +353,4 @@ void Interpreteur::traduitEnCPP(ostream & cout, unsigned int indentation) const 
     cout << setw(4 * (indentation + 1)) << "" << "return 0;" << endl;
     cout << setw(4 * indentation) << "}" << endl; // Fin d'un programme C++
 }
+
