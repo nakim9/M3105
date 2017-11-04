@@ -26,7 +26,7 @@ void NoeudSeqInst::ajoute(Noeud* instruction) {
 void NoeudSeqInst::traduitEnCPP(ostream & cout, unsigned int indentation) const {
     for (auto inst : m_instructions) {
         inst->traduitEnCPP(cout, indentation);
-        if (typeid (inst) == typeid (NoeudAffectation) || typeid (inst) == typeid (NoeudInstRepeter) || typeid (inst) == typeid (NoeudLire) || typeid (inst) == typeid (NoeudEcrire)) {
+        if (typeid (*inst) == typeid (NoeudAffectation) || typeid (*inst) == typeid (NoeudInstRepeter) || typeid (*inst) == typeid (NoeudLire) || typeid (*inst) == typeid (NoeudEcrire)) {
             cout << ";";
         }
         cout << endl;
@@ -51,7 +51,6 @@ void NoeudAffectation::traduitEnCPP(ostream & cout, unsigned int indentation) co
     m_variable->traduitEnCPP(cout, indentation);
     cout << " = ";
     m_expression->traduitEnCPP(cout, 0);
-    cout << ";";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +231,7 @@ int NoeudInstPour::executer() {
 void NoeudInstPour::traduitEnCPP(ostream & cout, unsigned int indentation) const {
     cout << setw(4 * indentation) << "" << "for ("; // Ecrit "for (" avec un décalage de 4*indentation espaces 
     m_initialisation->traduitEnCPP(cout, 0); // Traduit l'initialisation en C++ sans décalage 
-    cout << " ";
+    cout << "; ";
     m_condition->traduitEnCPP(cout, 0); // Traduit la condition en C++ sans décalage
     cout << "; ";
     m_incrementation->traduitEnCPP(cout, 0); // Traduit l'incrémentation en C++ sans décalage
@@ -263,7 +262,15 @@ int NoeudEcrire::executer() {
 }
 
 void NoeudEcrire::traduitEnCPP(ostream & cout, unsigned int indentation) const {
-
+    cout << setw(4 * indentation) << "" << "cout";
+    for (auto p : m_chainesEtExpressions) {
+        // on regarde si l’objet pointé par p est de type SymboleValue et si c’est une chaîne
+        if ((typeid (*p) == typeid (SymboleValue) && *((SymboleValue*) p) == "<CHAINE>")) {
+            cout << " << " << ((SymboleValue*) p)->getChaine();
+        } else {
+            cout << " << "; p->traduitEnCPP(cout,0);
+        }
+    }    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
