@@ -253,7 +253,19 @@ int NoeudEcrire::executer() {
     for (auto p : m_chainesEtExpressions) {
         // on regarde si l’objet pointé par p est de type SymboleValue et si c’est une chaîne
         if ((typeid (*p) == typeid (SymboleValue) && *((SymboleValue*) p) == "<CHAINE>")) {
-            cout << ((SymboleValue*) p)->getChaine();
+            string chaine = ((SymboleValue*) p)->getChaine();
+            //cout << endl << "chaine : " << chaine;
+            //cout << endl << "size : " << chaine.size();
+            int i = 1;
+            string str = "";
+            while(chaine[i] != '"'){
+                //cout << endl << chaine[i];
+                str.push_back(chaine[i]);
+                //cout << endl << str[i-1];
+                //cout << endl << i << " str : " <<str;
+                i++;
+            }            
+            cout << str;
         } else {
             cout << p->executer();
         }
@@ -292,5 +304,9 @@ int NoeudLire::executer() {
 }
 
 void NoeudLire::traduitEnCPP(ostream & cout, unsigned int indentation) const {
-
+    cout << setw(4 * indentation) << "" << "cin";
+    for (auto p : m_variables) {
+        cout << " >> "; 
+        p->traduitEnCPP(cout,0); 
+    }
 }

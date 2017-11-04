@@ -258,6 +258,7 @@ Noeud* Interpreteur::instEcrire() {
     testerEtAvancer("(");
     NoeudEcrire* ecrire = new NoeudEcrire();
     if (m_lecteur.getSymbole() == "<CHAINE>") {
+        m_lecteur.avancer();
         ecrire->ajoute(m_table.chercheAjoute(m_lecteur.getSymbole()));
         m_lecteur.avancer();
     } else
