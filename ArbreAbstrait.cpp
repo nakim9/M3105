@@ -51,16 +51,28 @@ int NoeudAffectation::executer() {
         ((SymboleValue*) m_variable)->setValeur(valeur); // On affecte la variable
         return 0; // La valeur renvoyée ne représente rien !
     }
-    else if (m_expression == nullptr && m_type == "incr") {
+    else if (m_expression == nullptr && m_type == "postIncr") {
         Noeud* exp = m_variable;
         int valeur = exp->executer(); // On exécute (évalue) l'expression
-        ((SymboleValue*) m_variable)->setValeur(valeur+1); // On affecte la variable
+        ((SymboleValue*) m_variable)->setValeur(valeur++); // On affecte la variable
         return 0; // La valeur renvoyée ne représente rien !
     }
-    else if (m_expression == nullptr && m_type == "decr") {
+    else if (m_expression == nullptr && m_type == "postDecr") {
         Noeud* exp = m_variable;
         int valeur = exp->executer(); // On exécute (évalue) l'expression
-        ((SymboleValue*) m_variable)->setValeur(valeur-1); // On affecte la variable
+        ((SymboleValue*) m_variable)->setValeur(valeur--); // On affecte la variable
+        return 0; // La valeur renvoyée ne représente rien !
+    }
+    else if (m_expression == nullptr && m_type == "preIncr") {
+        Noeud* exp = m_variable;
+        int valeur = exp->executer(); // On exécute (évalue) l'expression
+        ((SymboleValue*) m_variable)->setValeur(++valeur); // On affecte la variable
+        return 0; // La valeur renvoyée ne représente rien !
+    }
+    else if (m_expression == nullptr && m_type == "preDecr") {
+        Noeud* exp = m_variable;
+        int valeur = exp->executer(); // On exécute (évalue) l'expression
+        ((SymboleValue*) m_variable)->setValeur(--valeur); // On affecte la variable
         return 0; // La valeur renvoyée ne représente rien !
     }
 }
@@ -71,13 +83,21 @@ void NoeudAffectation::traduitEnCPP(ostream & cout, unsigned int indentation) co
         cout << " = ";
         m_expression->traduitEnCPP(cout, 0);
     }
-    else if(m_expression == nullptr && m_type == "incr") {
+    else if(m_expression == nullptr && m_type == "postIncr") {
         m_variable->traduitEnCPP(cout, indentation);
         cout<<""<<"++";
     }
-    else if(m_expression == nullptr && m_type == "decr") {
+    else if(m_expression == nullptr && m_type == "postDecr") {
         m_variable->traduitEnCPP(cout, indentation);
         cout<<""<<"--";
+    }
+    else if(m_expression == nullptr && m_type == "preIncr") {
+        cout<<setw(4*indentation)<<"++";
+        m_variable->traduitEnCPP(cout, 0);
+    }
+    else if(m_expression == nullptr && m_type == "preDecr") {
+        cout<<setw(4*indentation)<<"--";
+        m_variable->traduitEnCPP(cout, 0);
     }
 }
 
@@ -332,7 +352,11 @@ int NoeudLire::executer() {
 }
 
 void NoeudLire::traduitEnCPP(ostream & cout, unsigned int indentation) const {
-
+    cout << setw(4 * indentation) << "" << "cin";
+    for (auto p : m_variables) {
+        cout << " >> "; 
+        p->traduitEnCPP(cout,0); 
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -363,3 +387,4 @@ void NoeudInstSwitch::traduitEnCPP(ostream& cout, unsigned int indentation) cons
         cout<<setw(4*indentation)<<"break;";
     }
 }
+    

@@ -83,7 +83,16 @@ Noeud* Interpreteur::inst() {
             Noeud *affect = affectation();
             testerEtAvancer(";");
             return affect;
-        } else if (m_lecteur.getSymbole() == "si")
+        } else if (m_lecteur.getSymbole() == "--") {
+            Noeud *preDecrementation = affectation();
+            testerEtAvancer(";");
+            return preDecrementation;
+        } else if (m_lecteur.getSymbole() == "++") {
+            Noeud *preIncrementation = affectation();
+            testerEtAvancer(";");
+            return preIncrementation;
+        }
+        else if (m_lecteur.getSymbole() == "si")
             return instSiRiche();
         else if (m_lecteur.getSymbole() == "tantque")
             return instTantQue();
@@ -110,6 +119,8 @@ Noeud* Interpreteur::inst() {
         cout << "SyntaxeError : " << e.what() << endl;
         m_nbErreurs++;
         while (m_lecteur.getSymbole() != "<VARIABLE>" &&
+                m_lecteur.getSymbole() != "++" &&
+                m_lecteur.getSymbole() != "--" &&
                 m_lecteur.getSymbole() != "si" &&
                 m_lecteur.getSymbole() != "tantque" &&
                 m_lecteur.getSymbole() != "repeter" &&
@@ -126,23 +137,41 @@ Noeud* Interpreteur::inst() {
 Noeud* Interpreteur::affectation() {
     // <affectation> ::= <variable> = <expression>
     string type; // variable qui va permettre de distinguer une incrémentation d'une décrémentation
-    tester("<VARIABLE>");
-    Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
-    m_lecteur.avancer();
-    if (m_lecteur.getSymbole()=="=") {
+    if(m_lecteur.getSymbole() == "<VARIABLE>"){
+        tester("<VARIABLE>");
+        Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
         m_lecteur.avancer();
-        Noeud* exp = expression(); // On mémorise l'expression trouvée
-        return new NoeudAffectation(var, exp); // On renvoie un noeud affectation
-    } 
-    else if (m_lecteur.getSymbole()=="++") {
-        m_lecteur.avancer();
-        type = "incr";
-        return new NoeudAffectation(var, type); // On renvoie un noeud affectation
+        if (m_lecteur.getSymbole()=="=") {
+            m_lecteur.avancer();
+            Noeud* exp = expression(); // On mémorise l'expression trouvée
+            return new NoeudAffectation(var, exp); // On renvoie un noeud affectation
+        } 
+        else if (m_lecteur.getSymbole()=="++") {
+            m_lecteur.avancer();
+            type = "postIncr";
+            return new NoeudAffectation(var, type); // On renvoie un noeud affectation
+        }
+            else if (m_lecteur.getSymbole()=="--") {
+            m_lecteur.avancer();
+            type = "postDecr";
+            return new NoeudAffectation(var, type); // On renvoie un noeud affectation
+        }
     }
-    else if (m_lecteur.getSymbole()=="--") {
+    else if (m_lecteur.getSymbole() == "++") {
         m_lecteur.avancer();
-        type = "decr";
-        return new NoeudAffectation(var, type); // On renvoie un noeud affectation
+        tester("<VARIABLE>");
+        Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
+        m_lecteur.avancer();
+        type = "preIncr";
+        return new NoeudAffectation(var, type);
+    }
+    else if (m_lecteur.getSymbole() == "--") {
+        m_lecteur.avancer();
+        tester("<VARIABLE>");
+        Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
+        m_lecteur.avancer();
+        type = "preDecr";
+        return new NoeudAffectation(var, type);
     }
 }
 
@@ -319,6 +348,7 @@ Noeud* Interpreteur::instSwitch() {
     testerEtAvancer("selon");
     testerEtAvancer("(");
     Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
+    m_lecteur.avancer();
     testerEtAvancer(")");
     while (m_lecteur.getSymbole()=="cas") {
         m_lecteur.avancer();
