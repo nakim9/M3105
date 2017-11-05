@@ -41,16 +41,44 @@ NoeudAffectation::NoeudAffectation(Noeud* variable, Noeud* expression)
 : m_variable(variable), m_expression(expression) {
 }
 
+NoeudAffectation::NoeudAffectation(Noeud* variable, string type)
+: m_variable(variable), m_type(type) {
+}
+
 int NoeudAffectation::executer() {
-    int valeur = m_expression->executer(); // On exécute (évalue) l'expression
-    ((SymboleValue*) m_variable)->setValeur(valeur); // On affecte la variable
-    return 0; // La valeur renvoyée ne représente rien !
+    if(m_expression != nullptr) {
+        int valeur = m_expression->executer(); // On exécute (évalue) l'expression
+        ((SymboleValue*) m_variable)->setValeur(valeur); // On affecte la variable
+        return 0; // La valeur renvoyée ne représente rien !
+    }
+    else if (m_expression == nullptr && m_type == "incr") {
+        Noeud* exp = m_variable;
+        int valeur = exp->executer(); // On exécute (évalue) l'expression
+        ((SymboleValue*) m_variable)->setValeur(valeur+1); // On affecte la variable
+        return 0; // La valeur renvoyée ne représente rien !
+    }
+    else if (m_expression == nullptr && m_type == "decr") {
+        Noeud* exp = m_variable;
+        int valeur = exp->executer(); // On exécute (évalue) l'expression
+        ((SymboleValue*) m_variable)->setValeur(valeur-1); // On affecte la variable
+        return 0; // La valeur renvoyée ne représente rien !
+    }
 }
 
 void NoeudAffectation::traduitEnCPP(ostream & cout, unsigned int indentation) const {
-    m_variable->traduitEnCPP(cout, indentation);
-    cout << " = ";
-    m_expression->traduitEnCPP(cout, 0);
+    if(m_expression != nullptr) {
+        m_variable->traduitEnCPP(cout, indentation);
+        cout << " = ";
+        m_expression->traduitEnCPP(cout, 0);
+    }
+    else if(m_expression == nullptr && m_type == "incr") {
+        m_variable->traduitEnCPP(cout, indentation);
+        cout<<""<<"++";
+    }
+    else if(m_expression == nullptr && m_type == "decr") {
+        m_variable->traduitEnCPP(cout, indentation);
+        cout<<""<<"--";
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -159,7 +187,7 @@ void NoeudInstSiRiche::traduitEnCPP(ostream & cout, unsigned int indentation)con
     while (i < m_vectSi.size()) {
         cout << setw(4 * indentation) << "" << "else if "; // Ecrit "else if (" avec un décalage de 4*indentation espaces 
         m_vectSi[i]->traduitEnCPP(cout, indentation + 1); // Traduit la condition en C++ sans décalage
-        cout << setw(4 * indentation) << "" << " }" << endl; // Ecrit "}" avec l'indentation initiale et passe à la ligne
+        cout << setw(4 * indentation) << "" << "}" << endl; // Ecrit "}" avec l'indentation initiale et passe à la ligne
         i++;
     }
     if (m_sequenceSinon) {
@@ -308,5 +336,35 @@ void NoeudLire::traduitEnCPP(ostream & cout, unsigned int indentation) const {
     for (auto p : m_variables) {
         cout << " >> "; 
         p->traduitEnCPP(cout,0); 
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// NoeudInstSwitch
+////////////////////////////////////////////////////////////////////////////////
+
+NoeudInstSwitch::NoeudInstSwitch(Noeud* variable, vector <Noeud*> vectCasCondition, vector <Noeud*> vectCasInstruction)
+: m_variable(variable), m_vectCasCondition(vectCasCondition), m_vectCasInstruction(vectCasInstruction) {
+}
+
+int NoeudInstSwitch::executer() {
+    int taille = m_vectCasCondition.size();
+    for(int i=0; i <= taille; i++){
+        if(m_vectCasCondition[i]->executer()){
+            m_vectCasInstruction[i]->executer();
+        }
+    }
+}
+
+void NoeudInstSwitch::traduitEnCPP(ostream& cout, unsigned int indentation) const {
+    cout<<setw(4*indentation)<<"switch (";
+    m_variable->traduitEnCPP(cout, 0);
+    cout<<")"<<endl;
+    for(int i=0; i<=m_vectCasCondition.size(); i++){
+        cout<<setw(4*indentation)<<"case '";
+        m_vectCasCondition[i]->traduitEnCPP(cout, indentation);
+        cout<<setw(4*indentation)<<"'"<<":"<<endl;
+        m_vectCasInstruction[i]->traduitEnCPP(cout, indentation);
+        cout<<setw(4*indentation)<<"break;";
     }
 }

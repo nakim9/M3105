@@ -69,7 +69,8 @@ Noeud* Interpreteur::seqInst() {
             m_lecteur.getSymbole() == "repeter" ||
             m_lecteur.getSymbole() == "pour" ||
             m_lecteur.getSymbole() == "ecrire" ||
-            m_lecteur.getSymbole() == "lire");
+            m_lecteur.getSymbole() == "lire" ||
+            m_lecteur.getSymbole() == "selon");
     // Tant que le symbole courant est un début possible d'instruction...
     // Il faut compléter cette condition chaque fois qu'on rajoute une nouvelle instruction
     return sequence;
@@ -80,6 +81,7 @@ Noeud* Interpreteur::inst() {
     try {
         if (m_lecteur.getSymbole() == "<VARIABLE>") {
             Noeud *affect = affectation();
+            cout<<"84";
             testerEtAvancer(";");
             return affect;
         } else if (m_lecteur.getSymbole() == "si")
@@ -100,6 +102,8 @@ Noeud* Interpreteur::inst() {
             Noeud* lire = instLire();
             testerEtAvancer(";");
             return lire;
+        } else if (m_lecteur.getSymbole() == "selon") {
+            return instSwitch();
         }// Compléter les alternatives chaque fois qu'on rajoute une nouvelle instruction
         else erreur("Instruction incorrecte");
     } catch (SyntaxeException & e) {
@@ -112,6 +116,7 @@ Noeud* Interpreteur::inst() {
                 m_lecteur.getSymbole() != "pour" &&
                 m_lecteur.getSymbole() != "ecrire" &&
                 m_lecteur.getSymbole() != "lire" &&
+                m_lecteur.getSymbole() != "selon" &&
                 m_lecteur.getSymbole() != "<FINDEFICHIER>") {
             m_lecteur.avancer();
         }
@@ -119,13 +124,26 @@ Noeud* Interpreteur::inst() {
 }
 
 Noeud* Interpreteur::affectation() {
-    // <affectation> ::= <variable> = <expression> 
+    // <affectation> ::= <variable> = <expression>
+    string type; // variable qui va permettre de distinguer une incrémentation d'une décrémentation
     tester("<VARIABLE>");
     Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
     m_lecteur.avancer();
-    testerEtAvancer("=");
-    Noeud* exp = expression(); // On mémorise l'expression trouvée
-    return new NoeudAffectation(var, exp); // On renvoie un noeud affectation
+    if (m_lecteur.getSymbole()=="=") {
+        m_lecteur.avancer();
+        Noeud* exp = expression(); // On mémorise l'expression trouvée
+        return new NoeudAffectation(var, exp); // On renvoie un noeud affectation
+    } 
+    else if (m_lecteur.getSymbole()=="++") {
+        m_lecteur.avancer();
+        type = "incr";
+        return new NoeudAffectation(var, type); // On renvoie un noeud affectation
+    }
+    else if (m_lecteur.getSymbole()=="--") {
+        m_lecteur.avancer();
+        type = "decr";
+        return new NoeudAffectation(var, type); // On renvoie un noeud affectation
+    }
 }
 
 Noeud* Interpreteur::expression() {
@@ -294,6 +312,29 @@ Noeud* Interpreteur::instLire() {
     return lire;
 }
 
+Noeud* Interpreteur::instSwitch() {
+    //   <instSwitch> ::= selon (i) cas 1 : <seqInst> cas 2 : <seqInst> ... defaut : <seqInst> finselon
+    vector<Noeud*> vectCasCondition;
+    vector<Noeud*> vectCasInstruction;
+    testerEtAvancer("selon");
+    testerEtAvancer("(");
+    Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
+    m_lecteur.avancer();
+    testerEtAvancer(")");
+    while (m_lecteur.getSymbole()=="cas") {
+        m_lecteur.avancer();
+        testerEtAvancer("(");
+        Noeud* condition = expression();
+        testerEtAvancer(")");
+        testerEtAvancer(":");
+        Noeud* inst = seqInst();
+        vectCasCondition.push_back(condition);
+        vectCasInstruction.push_back(inst);
+    }
+    testerEtAvancer("finselon");
+    return new NoeudInstSwitch(var, vectCasCondition, vectCasInstruction);
+}
+
 void Interpreteur::traduitEnCPP(ostream & cout, unsigned int indentation) const {
     cout << setw(4 * indentation) << "" << "int main() {" << endl; //Début d'un programme C++
     //Déclaration en C++ des variables présentes dans le programme...
@@ -320,3 +361,4 @@ void Interpreteur::traduitEnCPP(ostream & cout, unsigned int indentation) const 
     cout << setw(4 * (indentation + 1)) << "" << "return 0;" << endl;
     cout << setw(4 * indentation) << "}" << endl; // Fin d'un programme C++
 }
+

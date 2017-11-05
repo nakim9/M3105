@@ -47,6 +47,7 @@ private:
     Noeud*  instLire();    //   <instLire> ::= lire ( <variable> { , <variable> } ) 
     
     Noeud*  instSiRiche(); //   <instSiRiche> ::= si (<expression>) <seqInst> { sinonsi (<expression>) <seqInst> } [sinon <seqInst>] finsi
+    Noeud*  instSwitch();  //   <instSwitch> ::= selon (i) cas 1 : <seqInst> cas 2 : <seqInst> ... defaut : <seqInst> finselon
 
     // outils pour simplifier l'analyse syntaxique
     void tester (const string & symboleAttendu) const throw (SyntaxeException);   // Si symbole courant != symboleAttendu, on lève une exception
