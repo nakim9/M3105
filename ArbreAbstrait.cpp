@@ -14,8 +14,9 @@ NoeudSeqInst::NoeudSeqInst() : m_instructions() {
 }
 
 int NoeudSeqInst::executer() {
-    for (unsigned int i = 0; i < m_instructions.size(); i++)
+    for (unsigned int i = 0; i < m_instructions.size(); i++) {
         m_instructions[i]->executer(); // on exécute chaque instruction de la séquence
+    }
     return 0; // La valeur renvoyée ne représente rien !
 }
 
@@ -370,8 +371,9 @@ NoeudInstSwitch::NoeudInstSwitch(Noeud* variable, vector <Noeud*> vectCasConditi
 int NoeudInstSwitch::executer() {
     int taille = m_vectCasCondition.size();
     for(int i=0; i <= taille; i++){
-        m_vectCasCondition[i]->executer();
+        if(m_vectCasCondition[i]->executer()){
         m_vectCasInstruction[i]->executer();
+        }
     }
 }
 

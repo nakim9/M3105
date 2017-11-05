@@ -20,8 +20,8 @@ int main(int argc, char* argv[]) {
             cout << endl << "================ Syntaxe Correcte" << endl;
             // On exécute le programme            // On affiche le contenu de la table des symboles avant d'exécuter le programme
             cout << endl << "================ Table des symboles avant exécution : " << interpreteur.getTable();
-            cout << endl << "================ Traduction en C++" << endl;
-            interpreteur.traduitEnCPP(cout,0);            
+            //cout << endl << "================ Traduction en C++" << endl;
+            //interpreteur.traduitEnCPP(cout,0);            
             cout << endl << "================ Execution de l'arbre" << endl;
             interpreteur.getArbre()->executer();
             // Et on vérifie qu'il a fonctionné en regardant comment il a modifié la table des symboles
