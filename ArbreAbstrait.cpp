@@ -370,23 +370,24 @@ NoeudInstSwitch::NoeudInstSwitch(Noeud* variable, vector <Noeud*> vectCasConditi
 
 int NoeudInstSwitch::executer() {
     int taille = m_vectCasCondition.size();
-    for(int i=0; i <= taille; i++){
+    for(int i=0; i < taille; i++){
         if(m_vectCasCondition[i]->executer()){
         m_vectCasInstruction[i]->executer();
+            m_vectCasInstruction[i]->executer();
         }
     }
 }
 
 void NoeudInstSwitch::traduitEnCPP(ostream& cout, unsigned int indentation) const {
-    cout<<setw(4*indentation)<<"switch (";
+    cout<<setw(4*indentation)<<""<<"switch (";
     m_variable->traduitEnCPP(cout, 0);
-    cout<<")"<<endl;
-    for(int i=0; i<=m_vectCasCondition.size(); i++){
-        cout<<setw(4*indentation)<<"case '";
-        m_vectCasCondition[i]->traduitEnCPP(cout, indentation);
-        cout<<setw(4*indentation)<<"'"<<":"<<endl;
-        m_vectCasInstruction[i]->traduitEnCPP(cout, indentation);
-        cout<<setw(4*indentation)<<"break;";
+    cout<<") {"<<endl;
+    for(int i=0; i<m_vectCasCondition.size(); i++){
+        cout<<setw(8*indentation)<<""<<"case ";
+        m_vectCasCondition[i]->traduitEnCPP(cout, 0);
+        cout<<""<<" :"<<endl;
+        m_vectCasInstruction[i]->traduitEnCPP(cout, 3*indentation);
+        cout<<setw(18*indentation)<<"break;"<<endl;;
     }
+    cout<<setw(4*indentation)<<""<<"}"<<endl;
 }
-    

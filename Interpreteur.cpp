@@ -81,6 +81,7 @@ Noeud* Interpreteur::inst() {
     try {
         if (m_lecteur.getSymbole() == "<VARIABLE>") {
             Noeud *affect = affectation();
+            cout<<"84";
             testerEtAvancer(";");
             return affect;
         } else if (m_lecteur.getSymbole() == "--") {
@@ -111,8 +112,7 @@ Noeud* Interpreteur::inst() {
             testerEtAvancer(";");
             return lire;
         } else if (m_lecteur.getSymbole() == "selon") {
-            Noeud* Switch = instSwitch();
-            return Switch;
+            return instSwitch();
         }// Compléter les alternatives chaque fois qu'on rajoute une nouvelle instruction
         else erreur("Instruction incorrecte");
     } catch (SyntaxeException & e) {
