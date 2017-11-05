@@ -187,7 +187,7 @@ void NoeudInstSiRiche::traduitEnCPP(ostream & cout, unsigned int indentation)con
     while (i < m_vectSi.size()) {
         cout << setw(4 * indentation) << "" << "else if "; // Ecrit "else if (" avec un décalage de 4*indentation espaces 
         m_vectSi[i]->traduitEnCPP(cout, indentation + 1); // Traduit la condition en C++ sans décalage
-        cout << setw(4 * indentation) << "" << " }" << endl; // Ecrit "}" avec l'indentation initiale et passe à la ligne
+        cout << setw(4 * indentation) << "" << "}" << endl; // Ecrit "}" avec l'indentation initiale et passe à la ligne
         i++;
     }
     if (m_sequenceSinon) {
@@ -281,7 +281,19 @@ int NoeudEcrire::executer() {
     for (auto p : m_chainesEtExpressions) {
         // on regarde si l’objet pointé par p est de type SymboleValue et si c’est une chaîne
         if ((typeid (*p) == typeid (SymboleValue) && *((SymboleValue*) p) == "<CHAINE>")) {
-            cout << ((SymboleValue*) p)->getChaine();
+            string chaine = ((SymboleValue*) p)->getChaine();
+            //cout << endl << "chaine : " << chaine;
+            //cout << endl << "size : " << chaine.size();
+            int i = 1;
+            string str = "";
+            while(chaine[i] != '"'){
+                //cout << endl << chaine[i];
+                str.push_back(chaine[i]);
+                //cout << endl << str[i-1];
+                //cout << endl << i << " str : " <<str;
+                i++;
+            }            
+            cout << str;
         } else {
             cout << p->executer();
         }

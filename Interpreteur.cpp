@@ -69,7 +69,8 @@ Noeud* Interpreteur::seqInst() {
             m_lecteur.getSymbole() == "repeter" ||
             m_lecteur.getSymbole() == "pour" ||
             m_lecteur.getSymbole() == "ecrire" ||
-            m_lecteur.getSymbole() == "lire");
+            m_lecteur.getSymbole() == "lire" ||
+            m_lecteur.getSymbole() == "selon");
     // Tant que le symbole courant est un début possible d'instruction...
     // Il faut compléter cette condition chaque fois qu'on rajoute une nouvelle instruction
     return sequence;
@@ -100,6 +101,9 @@ Noeud* Interpreteur::inst() {
             Noeud* lire = instLire();
             testerEtAvancer(";");
             return lire;
+        } else if (m_lecteur.getSymbole() == "selon") {
+            Noeud* Switch = instSwitch();
+            return Switch;
         }// Compléter les alternatives chaque fois qu'on rajoute une nouvelle instruction
         else erreur("Instruction incorrecte");
     } catch (SyntaxeException & e) {
@@ -112,6 +116,7 @@ Noeud* Interpreteur::inst() {
                 m_lecteur.getSymbole() != "pour" &&
                 m_lecteur.getSymbole() != "ecrire" &&
                 m_lecteur.getSymbole() != "lire" &&
+                m_lecteur.getSymbole() != "selon" &&
                 m_lecteur.getSymbole() != "<FINDEFICHIER>") {
             m_lecteur.avancer();
         }
@@ -271,6 +276,7 @@ Noeud* Interpreteur::instEcrire() {
     testerEtAvancer("(");
     NoeudEcrire* ecrire = new NoeudEcrire();
     if (m_lecteur.getSymbole() == "<CHAINE>") {
+        m_lecteur.avancer();
         ecrire->ajoute(m_table.chercheAjoute(m_lecteur.getSymbole()));
         m_lecteur.avancer();
     } else
@@ -308,16 +314,17 @@ Noeud* Interpreteur::instLire() {
 
 Noeud* Interpreteur::instSwitch() {
     //   <instSwitch> ::= selon (i) cas 1 : <seqInst> cas 2 : <seqInst> ... defaut : <seqInst> finselon
-    testerEtAvancer("selon");
-    testerEtAvancer("(");
     vector<Noeud*> vectCasCondition;
     vector<Noeud*> vectCasInstruction;
+    testerEtAvancer("selon");
+    testerEtAvancer("(");
     Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
-    m_lecteur.avancer();
     testerEtAvancer(")");
     while (m_lecteur.getSymbole()=="cas") {
         m_lecteur.avancer();
+        testerEtAvancer("(");
         Noeud* condition = expression();
+        testerEtAvancer(")");
         testerEtAvancer(":");
         Noeud* inst = seqInst();
         vectCasCondition.push_back(condition);
