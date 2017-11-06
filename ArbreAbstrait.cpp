@@ -46,30 +46,26 @@ NoeudAffectation::NoeudAffectation(Noeud* variable, string type)
 }
 
 int NoeudAffectation::executer() {
-    if(m_expression != nullptr) {
+    if (m_expression != nullptr) {
         int valeur = m_expression->executer(); // On exécute (évalue) l'expression
         ((SymboleValue*) m_variable)->setValeur(valeur); // On affecte la variable
         return 0; // La valeur renvoyée ne représente rien !
-    }
-    else if (m_expression == nullptr && m_type == "postIncr") {
+    } else if (m_expression == nullptr && m_type == "postIncr") {
         Noeud* exp = m_variable;
         int valeur = exp->executer(); // On exécute (évalue) l'expression
         ((SymboleValue*) m_variable)->setValeur(valeur++); // On affecte la variable
         return 0; // La valeur renvoyée ne représente rien !
-    }
-    else if (m_expression == nullptr && m_type == "postDecr") {
+    } else if (m_expression == nullptr && m_type == "postDecr") {
         Noeud* exp = m_variable;
         int valeur = exp->executer(); // On exécute (évalue) l'expression
         ((SymboleValue*) m_variable)->setValeur(valeur--); // On affecte la variable
         return 0; // La valeur renvoyée ne représente rien !
-    }
-    else if (m_expression == nullptr && m_type == "preIncr") {
+    } else if (m_expression == nullptr && m_type == "preIncr") {
         Noeud* exp = m_variable;
         int valeur = exp->executer(); // On exécute (évalue) l'expression
         ((SymboleValue*) m_variable)->setValeur(++valeur); // On affecte la variable
         return 0; // La valeur renvoyée ne représente rien !
-    }
-    else if (m_expression == nullptr && m_type == "preDecr") {
+    } else if (m_expression == nullptr && m_type == "preDecr") {
         Noeud* exp = m_variable;
         int valeur = exp->executer(); // On exécute (évalue) l'expression
         ((SymboleValue*) m_variable)->setValeur(--valeur); // On affecte la variable
@@ -78,25 +74,21 @@ int NoeudAffectation::executer() {
 }
 
 void NoeudAffectation::traduitEnCPP(ostream & cout, unsigned int indentation) const {
-    if(m_expression != nullptr) {
+    if (m_expression != nullptr) {
         m_variable->traduitEnCPP(cout, indentation);
         cout << " = ";
         m_expression->traduitEnCPP(cout, 0);
-    }
-    else if(m_expression == nullptr && m_type == "postIncr") {
+    } else if (m_expression == nullptr && m_type == "postIncr") {
         m_variable->traduitEnCPP(cout, indentation);
-        cout<<""<<"++";
-    }
-    else if(m_expression == nullptr && m_type == "postDecr") {
+        cout << "" << "++";
+    } else if (m_expression == nullptr && m_type == "postDecr") {
         m_variable->traduitEnCPP(cout, indentation);
-        cout<<""<<"--";
-    }
-    else if(m_expression == nullptr && m_type == "preIncr") {
-        cout<<setw(4*indentation)<<"++";
+        cout << "" << "--";
+    } else if (m_expression == nullptr && m_type == "preIncr") {
+        cout << setw(4 * indentation) << "++";
         m_variable->traduitEnCPP(cout, 0);
-    }
-    else if(m_expression == nullptr && m_type == "preDecr") {
-        cout<<setw(4*indentation)<<"--";
+    } else if (m_expression == nullptr && m_type == "preDecr") {
+        cout << setw(4 * indentation) << "--";
         m_variable->traduitEnCPP(cout, 0);
     }
 }
@@ -306,13 +298,13 @@ int NoeudEcrire::executer() {
             //cout << endl << "size : " << chaine.size();
             int i = 1;
             string str = "";
-            while(chaine[i] != '"'){
+            while (chaine[i] != '"') {
                 //cout << endl << chaine[i];
                 str.push_back(chaine[i]);
                 //cout << endl << str[i-1];
                 //cout << endl << i << " str : " <<str;
                 i++;
-            }            
+            }
             cout << str;
         } else {
             cout << p->executer();
@@ -328,9 +320,10 @@ void NoeudEcrire::traduitEnCPP(ostream & cout, unsigned int indentation) const {
         if ((typeid (*p) == typeid (SymboleValue) && *((SymboleValue*) p) == "<CHAINE>")) {
             cout << " << " << ((SymboleValue*) p)->getChaine();
         } else {
-            cout << " << "; p->traduitEnCPP(cout,0);
+            cout << " << ";
+            p->traduitEnCPP(cout, 0);
         }
-    }    
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -354,8 +347,8 @@ int NoeudLire::executer() {
 void NoeudLire::traduitEnCPP(ostream & cout, unsigned int indentation) const {
     cout << setw(4 * indentation) << "" << "cin";
     for (auto p : m_variables) {
-        cout << " >> "; 
-        p->traduitEnCPP(cout,0); 
+        cout << " >> ";
+        p->traduitEnCPP(cout, 0);
     }
 }
 
@@ -369,22 +362,22 @@ NoeudInstSwitch::NoeudInstSwitch(Noeud* variable, vector <Noeud*> vectCasConditi
 
 int NoeudInstSwitch::executer() {
     int taille = m_vectCasCondition.size();
-    for(int i=0; i <= taille; i++){
-        if(m_vectCasCondition[i]->executer()){
+    for (int i = 0; i < taille; i++) {
+        if (m_variable->executer() == m_vectCasCondition[i]->executer()) {
             m_vectCasInstruction[i]->executer();
         }
     }
 }
 
 void NoeudInstSwitch::traduitEnCPP(ostream& cout, unsigned int indentation) const {
-    cout<<setw(4*indentation)<<"switch (";
+    cout << setw(4 * indentation) << "" << "switch (";
     m_variable->traduitEnCPP(cout, 0);
-    cout<<")"<<endl;
-    for(int i=0; i<=m_vectCasCondition.size(); i++){
-        cout<<setw(4*indentation)<<"case '";
-        m_vectCasCondition[i]->traduitEnCPP(cout, indentation);
-        cout<<setw(4*indentation)<<"'"<<":"<<endl;
-        m_vectCasInstruction[i]->traduitEnCPP(cout, indentation);
-        cout<<setw(4*indentation)<<"break;";
+    cout << ")";
+    for (int i = 0; i < m_vectCasCondition.size(); i++) {
+        cout << endl << setw(4 * (indentation+1)) << "" << "case '";
+        m_vectCasCondition[i]->traduitEnCPP(cout, 0);
+        cout << "'" << ":" << endl;
+        m_vectCasInstruction[i]->traduitEnCPP(cout, indentation+2);
+        cout << setw(4 * (indentation+1)) << "" << "break;";
     }
 }

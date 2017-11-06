@@ -81,7 +81,6 @@ Noeud* Interpreteur::inst() {
     try {
         if (m_lecteur.getSymbole() == "<VARIABLE>") {
             Noeud *affect = affectation();
-            cout<<"84";
             testerEtAvancer(";");
             return affect;
         } else if (m_lecteur.getSymbole() == "--") {
@@ -92,8 +91,7 @@ Noeud* Interpreteur::inst() {
             Noeud *preIncrementation = affectation();
             testerEtAvancer(";");
             return preIncrementation;
-        }
-        else if (m_lecteur.getSymbole() == "si")
+        } else if (m_lecteur.getSymbole() == "si")
             return instSiRiche();
         else if (m_lecteur.getSymbole() == "tantque")
             return instTantQue();
@@ -137,35 +135,31 @@ Noeud* Interpreteur::inst() {
 Noeud* Interpreteur::affectation() {
     // <affectation> ::= <variable> = <expression>
     string type; // variable qui va permettre de distinguer une incrémentation d'une décrémentation
-    if(m_lecteur.getSymbole() == "<VARIABLE>"){
+    if (m_lecteur.getSymbole() == "<VARIABLE>") {
         tester("<VARIABLE>");
         Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
         m_lecteur.avancer();
-        if (m_lecteur.getSymbole()=="=") {
+        if (m_lecteur.getSymbole() == "=") {
             m_lecteur.avancer();
             Noeud* exp = expression(); // On mémorise l'expression trouvée
             return new NoeudAffectation(var, exp); // On renvoie un noeud affectation
-        } 
-        else if (m_lecteur.getSymbole()=="++") {
+        } else if (m_lecteur.getSymbole() == "++") {
             m_lecteur.avancer();
             type = "postIncr";
             return new NoeudAffectation(var, type); // On renvoie un noeud affectation
-        }
-            else if (m_lecteur.getSymbole()=="--") {
+        } else if (m_lecteur.getSymbole() == "--") {
             m_lecteur.avancer();
             type = "postDecr";
             return new NoeudAffectation(var, type); // On renvoie un noeud affectation
         }
-    }
-    else if (m_lecteur.getSymbole() == "++") {
+    } else if (m_lecteur.getSymbole() == "++") {
         m_lecteur.avancer();
         tester("<VARIABLE>");
         Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
         m_lecteur.avancer();
         type = "preIncr";
         return new NoeudAffectation(var, type);
-    }
-    else if (m_lecteur.getSymbole() == "--") {
+    } else if (m_lecteur.getSymbole() == "--") {
         m_lecteur.avancer();
         tester("<VARIABLE>");
         Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
@@ -350,10 +344,10 @@ Noeud* Interpreteur::instSwitch() {
     Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
     m_lecteur.avancer();
     testerEtAvancer(")");
-    while (m_lecteur.getSymbole()=="cas") {
+    while (m_lecteur.getSymbole() == "cas") {
         m_lecteur.avancer();
         testerEtAvancer("(");
-        Noeud* condition = expression();
+        Noeud* condition = facteur();
         testerEtAvancer(")");
         testerEtAvancer(":");
         Noeud* inst = seqInst();
@@ -374,7 +368,7 @@ void Interpreteur::traduitEnCPP(ostream & cout, unsigned int indentation) const 
     while (i < tab.getTaille() - 1 && (typeid (tab[i]) == typeid (SymboleValue) && ((SymboleValue) tab[i]) != "<VARIABLE>")) {
         i++; //parcour de la table de symbole jusqu'a trouvé un symbole non défini ou la fin de la table
     }
-    if (i < tab.getTaille()-1) {//si on est pas à la fin de la table
+    if (i < tab.getTaille() - 1) {//si on est pas à la fin de la table
         cout << setw(4 * (indentation + 1)) << "" << "int ";
         cout << tab[i].getChaine();
         while (i < tab.getTaille() - 1) {//on parcourt le reste de la table
