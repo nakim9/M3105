@@ -202,7 +202,7 @@ private:
 class NoeudInstSwitch : public Noeud {
     // Classe pour représenter un noeud "instruction selon"
 public:
-    NoeudInstSwitch(Noeud* variable, vector<Noeud*> m_vectCasCondition, vector<Noeud*> m_vectCasInstruction);
+    NoeudInstSwitch(Noeud* variable, Noeud* instructionsParDefaut, vector<Noeud*> m_vectCasCondition, vector<Noeud*> m_vectCasInstruction);
     ~NoeudInstSwitch() {}
     int executer();  // Exécute l'instruction si : si condition vraie on exécute la séquence
     void traduitEnCPP(ostream & cout,unsigned int indentation) const;
@@ -210,5 +210,6 @@ public:
     vector<Noeud*> m_vectCasCondition;
     vector<Noeud*> m_vectCasInstruction;
     Noeud*  m_variable;
+    Noeud*  m_instDefaut;//optionnel
 };
 #endif /* ARBREABSTRAIT_H */

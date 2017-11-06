@@ -14,8 +14,9 @@ NoeudSeqInst::NoeudSeqInst() : m_instructions() {
 }
 
 int NoeudSeqInst::executer() {
-    for (unsigned int i = 0; i < m_instructions.size(); i++)
+    for (unsigned int i = 0; i < m_instructions.size(); i++) {
         m_instructions[i]->executer(); // on exécute chaque instruction de la séquence
+    }
     return 0; // La valeur renvoyée ne représente rien !
 }
 
@@ -356,28 +357,38 @@ void NoeudLire::traduitEnCPP(ostream & cout, unsigned int indentation) const {
 // NoeudInstSwitch
 ////////////////////////////////////////////////////////////////////////////////
 
-NoeudInstSwitch::NoeudInstSwitch(Noeud* variable, vector <Noeud*> vectCasCondition, vector <Noeud*> vectCasInstruction)
-: m_variable(variable), m_vectCasCondition(vectCasCondition), m_vectCasInstruction(vectCasInstruction) {
+NoeudInstSwitch::NoeudInstSwitch(Noeud* variable, Noeud* instructionsParDefaut, vector <Noeud*> vectCasCondition, vector <Noeud*> vectCasInstruction)
+: m_variable(variable), m_instDefaut(instructionsParDefaut), m_vectCasCondition(vectCasCondition), m_vectCasInstruction(vectCasInstruction) {
 }
 
 int NoeudInstSwitch::executer() {
     int taille = m_vectCasCondition.size();
+    bool execDefault = true;
     for (int i = 0; i < taille; i++) {
         if (m_variable->executer() == m_vectCasCondition[i]->executer()) {
             m_vectCasInstruction[i]->executer();
+            execDefault = false; //on n'execute pas defaut si une condition est correcte
         }
+    }
+    if (execDefault && m_instDefaut != nullptr) {
+        m_instDefaut->executer();
     }
 }
 
 void NoeudInstSwitch::traduitEnCPP(ostream& cout, unsigned int indentation) const {
     cout << setw(4 * indentation) << "" << "switch (";
     m_variable->traduitEnCPP(cout, 0);
-    cout << ")";
+    cout << ") {";
     for (int i = 0; i < m_vectCasCondition.size(); i++) {
-        cout << endl << setw(4 * (indentation+1)) << "" << "case '";
+        cout << endl << setw(4 * (indentation + 1)) << "" << "case ";
         m_vectCasCondition[i]->traduitEnCPP(cout, 0);
-        cout << "'" << ":" << endl;
-        m_vectCasInstruction[i]->traduitEnCPP(cout, indentation+2);
-        cout << setw(4 * (indentation+1)) << "" << "break;";
+        cout << "" << ":" << endl;
+        m_vectCasInstruction[i]->traduitEnCPP(cout, indentation + 2);
+        cout << setw(4 * (indentation + 2)) << "" << "break;";
     }
+    if (m_instDefaut != nullptr) {
+        cout << endl << setw(4 * (indentation + 1)) << "" << "default :" << endl;
+        m_instDefaut->traduitEnCPP(cout, indentation + 2);
+    }
+    cout << setw(4 * indentation) << "" << "}";
 }

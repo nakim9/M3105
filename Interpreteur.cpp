@@ -339,23 +339,32 @@ Noeud* Interpreteur::instSwitch() {
     //   <instSwitch> ::= selon (i) cas 1 : <seqInst> cas 2 : <seqInst> ... defaut : <seqInst> finselon
     vector<Noeud*> vectCasCondition;
     vector<Noeud*> vectCasInstruction;
+    Noeud* instDefaut = nullptr;   
     testerEtAvancer("selon");
     testerEtAvancer("(");
     Noeud* var = m_table.chercheAjoute(m_lecteur.getSymbole()); // La variable est ajoutée à la table et on la mémorise
     m_lecteur.avancer();
     testerEtAvancer(")");
-    while (m_lecteur.getSymbole() == "cas") {
-        m_lecteur.avancer();
-        testerEtAvancer("(");
-        Noeud* condition = facteur();
-        testerEtAvancer(")");
-        testerEtAvancer(":");
-        Noeud* inst = seqInst();
-        vectCasCondition.push_back(condition);
-        vectCasInstruction.push_back(inst);
+    while (m_lecteur.getSymbole() == "cas" || m_lecteur.getSymbole() == "defaut") {
+        if(m_lecteur.getSymbole() == "cas"){
+            m_lecteur.avancer();
+            testerEtAvancer("(");
+            Noeud* condition = facteur();
+            testerEtAvancer(")");
+            testerEtAvancer(":");
+            Noeud* inst = seqInst();
+            vectCasCondition.push_back(condition);
+            vectCasInstruction.push_back(inst);
+        }
+        else if(m_lecteur.getSymbole() == "defaut"){
+            tester("defaut");
+            m_lecteur.avancer();
+            testerEtAvancer(":");
+            instDefaut = seqInst();            
+        }
     }
     testerEtAvancer("finselon");
-    return new NoeudInstSwitch(var, vectCasCondition, vectCasInstruction);
+    return new NoeudInstSwitch(var, instDefaut, vectCasCondition, vectCasInstruction);
 }
 
 void Interpreteur::traduitEnCPP(ostream & cout, unsigned int indentation) const {
