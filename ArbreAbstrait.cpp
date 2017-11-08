@@ -270,15 +270,31 @@ int NoeudInstPour::executer() {
 }
 
 void NoeudInstPour::traduitEnCPP(ostream & cout, unsigned int indentation) const {
-    cout << setw(4 * indentation) << "" << "for ("; // Ecrit "for (" avec un décalage de 4*indentation espaces 
-    m_initialisation->traduitEnCPP(cout, 0); // Traduit l'initialisation en C++ sans décalage 
-    cout << "; ";
-    m_condition->traduitEnCPP(cout, 0); // Traduit la condition en C++ sans décalage
-    cout << "; ";
-    m_incrementation->traduitEnCPP(cout, 0); // Traduit l'incrémentation en C++ sans décalage
-    cout << ") {" << endl; // Ecrit ") {" et passe à la ligne 
-    m_seqInstruction->traduitEnCPP(cout, indentation + 1); // Traduit en C++ la séquence avec indentation augmentée
-    cout << setw(4 * indentation) << "" << "}"; // Ecrit "}" avec l'indentation initiale et passe à la ligne
+    if(m_initialisation != nullptr && m_incrementation != nullptr){
+        cout << setw(4 * indentation) << "" << "for ("; // Ecrit "for (" avec un décalage de 4*indentation espaces 
+        m_initialisation->traduitEnCPP(cout, 0); // Traduit l'initialisation en C++ sans décalage 
+        cout << "; ";
+        m_condition->traduitEnCPP(cout, 0); // Traduit la condition en C++ sans décalage
+        cout << "; ";
+        m_incrementation->traduitEnCPP(cout, 0); // Traduit l'incrémentation en C++ sans décalage
+        cout << ") {" << endl; // Ecrit ") {" et passe à la ligne 
+        m_seqInstruction->traduitEnCPP(cout, indentation + 1); // Traduit en C++ la séquence avec indentation augmentée
+        cout << setw(4 * indentation) << "" << "}"; // Ecrit "}" avec l'indentation initiale et passe à la ligne
+    }else{
+        if(m_initialisation != nullptr){
+            m_initialisation->traduitEnCPP(cout, indentation);
+            cout<<";"<<endl;
+        }
+        cout << setw(4 * indentation) << "" << "while ("; // Ecrit "for (" avec un décalage de 4*indentation espaces 
+        m_condition->traduitEnCPP(cout, 0); // Traduit la condition en C++ sans décalage
+        cout << ") {" << endl; // Ecrit ") {" et passe à la ligne 
+        m_seqInstruction->traduitEnCPP(cout, indentation + 1); // Traduit en C++ la séquence avec indentation augmentée
+        if(m_incrementation != nullptr){
+            m_incrementation->traduitEnCPP(cout, indentation+1);
+            cout<<";"<<endl;
+        }             
+        cout << setw(4 * indentation) << "" << "}"; // Ecrit "}" avec l'indentation initiale et passe à la ligne           
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,15 +311,10 @@ int NoeudEcrire::executer() {
         // on regarde si l’objet pointé par p est de type SymboleValue et si c’est une chaîne
         if ((typeid (*p) == typeid (SymboleValue) && *((SymboleValue*) p) == "<CHAINE>")) {
             string chaine = ((SymboleValue*) p)->getChaine();
-            //cout << endl << "chaine : " << chaine;
-            //cout << endl << "size : " << chaine.size();
             int i = 1;
             string str = "";
             while (chaine[i] != '"') {
-                //cout << endl << chaine[i];
                 str.push_back(chaine[i]);
-                //cout << endl << str[i-1];
-                //cout << endl << i << " str : " <<str;
                 i++;
             }
             cout << str;

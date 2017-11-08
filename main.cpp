@@ -19,13 +19,13 @@ int main(int argc, char* argv[]) {
             // Si pas d'exception levée, l'analyse syntaxique a réussi
             cout << endl << "================ Syntaxe Correcte" << endl;
             // On exécute le programme            // On affiche le contenu de la table des symboles avant d'exécuter le programme
-            cout << endl << "================ Table des symboles avant exécution : " << interpreteur.getTable();
-            cout << endl << "================ Traduction en C++" << endl;
-            interpreteur.traduitEnCPP(cout, 0);            
+            cout << endl << "================ Table des symboles avant exécution : " << interpreteur.getTable();   
             cout << endl << "================ Execution de l'arbre" << endl;
             interpreteur.getArbre()->executer();
             // Et on vérifie qu'il a fonctionné en regardant comment il a modifié la table des symboles
             cout << endl << "================ Table des symboles apres exécution : " << interpreteur.getTable();
+            //cout << endl << "================ Traduction en C++" << endl;
+            //interpreteur.traduitEnCPP(cout, 0);         
         } else
             cout << interpreteur.getNbErreurs() << "erreur(s) de syntaxe" << endl;
     } catch (InterpreteurException & e) {
